@@ -95,34 +95,41 @@ if ($barFill -gt 10) { $barFill = 10 }
 if ($barFill -lt 0)  { $barFill = 0 }
 $bar = "[" + ("#" * $barFill) + ("." * (10 - $barFill)) + "]"
 
-$color_pct = if ($pct -ge 60) { "35" }
-              elseif ($pct -ge 40) { "31" }
-              elseif ($pct -ge 30) { "38;5;208" }
-              elseif ($pct -ge 20) { "33" }
-              else { "36" }
+$esc = [char]27
+$reset   = "$esc[0m"
+$cyan    = "$esc[38;2;125;207;255m"  # #7dcfff
+$magenta = "$esc[38;2;187;154;247m"  # #bb9af7
+$dim     = "$esc[2m"
+$bold    = "$esc[1m"
+
+$color_pct = if ($pct -ge 60) { "$esc[38;2;187;154;247m" }   # purple
+              elseif ($pct -ge 40) { "$esc[38;2;247;118;142m" }  # red
+              elseif ($pct -ge 30) { "$esc[38;2;255;158;100m" }  # orange
+              elseif ($pct -ge 20) { "$esc[38;2;224;175;104m" }  # yellow
+              else { "$esc[38;2;158;206;106m" }                  # green
 
 $dir = Split-Path -Leaf $cwd
-$esc = [char]27
+$sep = "$cyan|$reset"
 
 $parts = @()
 
-$dirPart = "$esc[2m$dir$esc[0m"
+$dirPart = "$cyan$dir$reset"
 if ($branch) {
-    $dirPart += " $esc[32m($branch$gitStatus)$esc[0m"
+    $dirPart += " on $magenta$branch$gitStatus$reset"
 }
 $parts += $dirPart
 
-$parts += "$esc[1m$modelName$esc[0m"
+$parts += "$bold$modelName$reset"
 
 if ($cost -gt 0) {
     $costStr = if ($cost -ge 1) { "{0:N2}" -f $cost } else { "{0:N3}" -f $cost }
-    $parts += "$esc[36m`$$costStr$esc[0m"
+    $parts += "$cyan`$$costStr$reset"
 }
 
 if ($durStr) {
-    $parts += "$esc[2m$durStr$esc[0m"
+    $parts += "$dim$durStr$reset"
 }
 
-$parts += "$esc[${color_pct}m$tok_k/$lim_k $bar $pct%$esc[0m"
+$parts += "$color_pct$tok_k/$lim_k $bar $pct%$reset"
 
-$parts -join "  "
+$parts -join " $sep "

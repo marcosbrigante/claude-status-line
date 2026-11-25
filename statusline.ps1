@@ -132,8 +132,19 @@ if ($durStr) {
 
 $parts += "$color_pct$tok_k/$lim_k $bar $pct%$reset"
 
-# Weekly quota (Pro/Max/Team): Claude Code sends rate_limits.seven_day on stdin
+# Weekly quota (Pro/Max/Team): Claude Code sends rate_limits.seven_day on stdin,
+# but only after the session's first API response. Cache the last value seen so
+# a fresh session shows it too; drop the cache once its reset time has passed.
+$quotaCache = Join-Path $HOME ".claude/statusline-quota.json"
 $week = $ctx.rate_limits.seven_day
+if ($week -and $null -ne $week.used_percentage) {
+    try { ($week | ConvertTo-Json -Compress) | Set-Content -Path $quotaCache -Encoding utf8 } catch {}
+} elseif (Test-Path $quotaCache) {
+    try {
+        $cached = Get-Content -Raw $quotaCache | ConvertFrom-Json
+        if ($cached.resets_at -and [long]$cached.resets_at -gt [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()) { $week = $cached }
+    } catch {}
+}
 if ($week -and $null -ne $week.used_percentage) {
     $wPct = [double]$week.used_percentage
     $wColor = if ($wPct -ge 90) { "$esc[38;2;247;118;142m" }      # red

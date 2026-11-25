@@ -18,6 +18,7 @@ pangare (main*+2)  Opus 4.7 (1M context)  $0.42  1h23m  85.2k/1000k [#.........]
 - **Cota semanal** usada (`7d N%`) + quando reseta, no horário local
   - verde <50% · amarelo 50-75% · laranja 75-90% · vermelho ≥90%
   - só aparece em plano de assinatura (Pro/Max/Team); com chave de API o Claude Code não manda a cota
+  - o Claude Code só manda a cota depois da 1ª resposta da sessão; o último valor fica em `~/.claude/statusline-quota.json` pra sessão nova já abrir mostrando (descartado quando passa o reset)
 
 ## Pré-requisitos
 

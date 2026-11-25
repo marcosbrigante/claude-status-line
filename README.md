@@ -5,7 +5,7 @@ Statusline para [Claude Code](https://claude.com/claude-code) no Windows (pwsh).
 Mostra na barra de status, sempre visível:
 
 ```
-pangare (main*+2)  Opus 4.7 (1M context)  $0.42  1h23m  85.2k/1000k [#.........] 8.5%
+pangare (main*+2)  Opus 4.7 (1M context)  $0.42  1h23m  85.2k/1000k [#.........] 8.5%  7d 37% (reset Mon 03h)
 ```
 
 - **Diretório atual** (dimmed)
@@ -15,6 +15,9 @@ pangare (main*+2)  Opus 4.7 (1M context)  $0.42  1h23m  85.2k/1000k [#.........]
 - **Duração da sessão**
 - **Tokens consumidos** / limite do modelo + barra visual + %
   - ciano <20% · amarelo 20-30% · laranja 30-40% · vermelho 40-60% · roxo ≥60%
+- **Cota semanal** usada (`7d N%`) + quando reseta, no horário local
+  - verde <50% · amarelo 50-75% · laranja 75-90% · vermelho ≥90%
+  - só aparece em plano de assinatura (Pro/Max/Team); com chave de API o Claude Code não manda a cota
 
 ## Pré-requisitos
 
@@ -43,7 +46,7 @@ Edite `~/.claude/statusline.ps1` direto. As faixas de cor, formato e o que mostr
 
 ## Como funciona
 
-Claude Code chama o comando do `statusLine` em cada atualização de prompt e passa um JSON pelo stdin com `transcript_path`, `model`, `cwd`. O script lê o transcript (JSONL) pra computar tokens/custo/duração e roda `git status` pra branch info. Custo zero — só CPU local, sem chamada de API.
+Claude Code chama o comando do `statusLine` em cada atualização de prompt e passa um JSON pelo stdin com `transcript_path`, `model`, `cwd` e, em plano de assinatura, `rate_limits.seven_day` (`used_percentage`, `resets_at`). O script lê o transcript (JSONL) pra computar tokens/custo/duração e roda `git status` pra branch info. Custo zero — só CPU local, sem chamada de API.
 
 ## Tabela de preços usada
 

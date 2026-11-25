@@ -132,4 +132,22 @@ if ($durStr) {
 
 $parts += "$color_pct$tok_k/$lim_k $bar $pct%$reset"
 
+# Weekly quota (Pro/Max/Team): Claude Code sends rate_limits.seven_day on stdin
+$week = $ctx.rate_limits.seven_day
+if ($week -and $null -ne $week.used_percentage) {
+    $wPct = [double]$week.used_percentage
+    $wColor = if ($wPct -ge 90) { "$esc[38;2;247;118;142m" }      # red
+              elseif ($wPct -ge 75) { "$esc[38;2;255;158;100m" }  # orange
+              elseif ($wPct -ge 50) { "$esc[38;2;224;175;104m" }  # yellow
+              else { "$esc[38;2;158;206;106m" }                   # green
+    $wStr = "7d {0}%" -f [int][math]::Round($wPct)
+    if ($week.resets_at) {
+        try {
+            $resetAt = [DateTimeOffset]::FromUnixTimeSeconds([long]$week.resets_at).LocalDateTime
+            $wStr += " $dim(reset " + $resetAt.ToString("ddd HH'h'") + ")"
+        } catch {}
+    }
+    $parts += "$wColor$wStr$reset"
+}
+
 $parts -join " $sep "
